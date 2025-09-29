@@ -1,22 +1,28 @@
+import { getKomiks } from '@/lib/firebase/firebaseService'
+import { countByStatus, countByKualitas } from '@/utils/komikHandler'
+
 export async function getOverviewData() {
   // Fake delay
   await new Promise((resolve) => setTimeout(resolve, 2000));
+  
+  // fetch data komik dari Firestore
+  const komiks = await getKomiks(); // ambil semua data komik
 
   return {
-    views: {
-      value: 3456,
+    total_komiks: {
+      value: komiks.length,
       growthRate: 0.43,
     },
-    profit: {
-      value: 4220,
+    sedang_dibaca: {
+      value: countByStatus(komiks, "SD"), // filter semua komik sedang dibaca
       growthRate: 4.35,
     },
-    products: {
-      value: 3456,
+    menunggu_update: {
+      value: countByStatus(komiks, "MU"), // filter semua komik menunggu update,
       growthRate: 2.59,
     },
-    users: {
-      value: 3456,
+    komik_bagus: {
+      value: countByKualitas(komiks, ["5", "4"]),
       growthRate: -0.95,
     },
   };
