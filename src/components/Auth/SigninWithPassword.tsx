@@ -1,11 +1,17 @@
 "use client";
+
 import { EmailIcon, PasswordIcon } from "@/assets/icons";
 import Link from "next/link";
 import React, { useState } from "react";
 import InputGroup from "../FormElements/InputGroup";
 import { Checkbox } from "../FormElements/checkbox";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/lib/firebase/firebaseConfig";
+import { useRouter } from "next/navigation";
 
 export default function SigninWithPassword() {
+  const router = useRouter();
+
   const [data, setData] = useState({
     email: process.env.NEXT_PUBLIC_DEMO_USER_MAIL || "",
     password: process.env.NEXT_PUBLIC_DEMO_USER_PASS || "",
@@ -13,6 +19,7 @@ export default function SigninWithPassword() {
   });
 
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setData({
@@ -21,15 +28,38 @@ export default function SigninWithPassword() {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    // You can remove this code block
     setLoading(true);
+    setError(null);
 
-    setTimeout(() => {
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
+
+       // ✅ User berhasil login
+      const user = userCredential.user;
+      // console.log("Login berhasil, UID:", user.uid);
+      // console.log("Email:", user.email);
+
+      // Mendapatkan token setelah login berhasil
+      const token = await user.getIdToken();
+      // console.log("ID Token:", token);
+      
+      // Set cookie menggunakan nookies
+      // setCookie(null, "token", idToken, {
+      //   maxAge: 30 * 24 * 60 * 60, // 30 hari
+      //   path: "/", // Dapat diakses di seluruh aplikasi
+      // });
+      router.push("/"); // redirect setelah login sukses
+      // return user;
+
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
+    
+
   };
 
   return (
@@ -79,15 +109,19 @@ export default function SigninWithPassword() {
         </Link>
       </div>
 
+      {error && (
+        <p className="mb-4 text-sm text-red-500">
+          {error}
+        </p>
+      )}
+
       <div className="mb-4.5">
         <button
           type="submit"
-          className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary p-4 font-medium text-white transition hover:bg-opacity-90"
+          disabled={loading}
+          className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary p-4 font-medium text-white transition hover:bg-opacity-90 disabled:opacity-50"
         >
-          Sign In
-          {loading && (
-            <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-t-transparent dark:border-primary dark:border-t-transparent" />
-          )}
+          {loading ? "Signing in..." : "Sign In"}
         </button>
       </div>
     </form>
