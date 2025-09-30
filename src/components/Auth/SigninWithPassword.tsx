@@ -5,12 +5,11 @@ import Link from "next/link";
 import React, { useState } from "react";
 import InputGroup from "../FormElements/InputGroup";
 import { Checkbox } from "../FormElements/checkbox";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/lib/firebase/firebaseConfig";
+import { userLoginWithEmail } from "@/lib/firebase/firebaseAuth";
 import { useRouter } from "next/navigation";
 
 export default function SigninWithPassword() {
-  const router = useRouter();
+  const router = useRouter()
 
   const [data, setData] = useState({
     email: process.env.NEXT_PUBLIC_DEMO_USER_MAIL || "",
@@ -34,32 +33,13 @@ export default function SigninWithPassword() {
     setError(null);
 
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
-
-       // ✅ User berhasil login
-      const user = userCredential.user;
-      // console.log("Login berhasil, UID:", user.uid);
-      // console.log("Email:", user.email);
-
-      // Mendapatkan token setelah login berhasil
-      const token = await user.getIdToken();
-      // console.log("ID Token:", token);
-      
-      // Set cookie menggunakan nookies
-      // setCookie(null, "token", idToken, {
-      //   maxAge: 30 * 24 * 60 * 60, // 30 hari
-      //   path: "/", // Dapat diakses di seluruh aplikasi
-      // });
-      router.push("/"); // redirect setelah login sukses
-      // return user;
-
+      await userLoginWithEmail(data.email, data.password);
+      router.push("/")
     } catch (err: any) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-    
-
   };
 
   return (
