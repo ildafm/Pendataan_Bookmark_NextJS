@@ -1,5 +1,5 @@
 // lib/firebase/firebaseConfig.ts
-import { initializeApp } from "firebase/app";
+import { getApps, initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
@@ -13,6 +13,8 @@ const firebaseConfig = {
 };
 
 
-const app = initializeApp(firebaseConfig);
+// supaya gak initialize ulang
+const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+
 export const db = getFirestore(app);
 export const auth = getAuth(app)

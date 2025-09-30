@@ -1,13 +1,25 @@
+import { auth } from '@/lib/firebase/firebaseConfig';
 import { getKomiks } from '@/lib/firebase/firebaseService'
 import { countByStatus, countByKualitas } from '@/utils/komikHandler'
+import { onAuthStateChanged } from 'firebase/auth';
 
 export async function getOverviewData() {
-  // Fake delay
-  await new Promise((resolve) => setTimeout(resolve, 2000));
+  const komiks = await new Promise((resolve, reject) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      unsubscribe(); // stop listening setelah sekali dipanggil
+      if (user) {
+        try {
+          const data = await getKomiks();
+          resolve(data);
+        } catch (err) {
+          reject(err);
+        }
+      } else {
+        resolve([]); // kalau belum login → kosong
+      }
+    });
+  });
   
-  // fetch data komik dari Firestore
-  const komiks = await getKomiks(); // ambil semua data komik
-
   return {
     total_komiks: {
       value: komiks.length,

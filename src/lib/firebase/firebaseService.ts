@@ -11,7 +11,8 @@ export interface Komik {
 // sekali fetch data
 export const getKomiks = async (): Promise<Komik[]> => {
   const user = auth.currentUser;
-
+  console.log(user);
+  
   if (!user) {
     throw new Error("User not logged in")
     // console.error("User not logged in");
