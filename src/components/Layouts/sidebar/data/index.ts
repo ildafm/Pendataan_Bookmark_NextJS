@@ -15,6 +15,24 @@ export const NAV_DATA = [
         ],
       },
       {
+        title: "Komik",
+        icon: Icons.HomeIcon,
+        items: [
+          {
+            title: "Semua Komik",
+            url: "/komiks",
+          },
+          {
+            title: "Cover Only",
+            url: "/komiks/cover_only",
+          },
+          {
+            title: "Form Add Data",
+            url: "/komiks/form_add_data",
+          },
+        ],
+      },
+      {
         title: "Calendar",
         url: "/calendar",
         icon: Icons.Calendar,
