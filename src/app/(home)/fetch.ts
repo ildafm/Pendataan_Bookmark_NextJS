@@ -19,9 +19,9 @@ export async function getOverviewData() {
       }
     });
   });
-  
-  return {
-    total_komiks: {
+
+  const data = {
+      total_komiks: {
       value: komiks.length,
       growthRate: 0.43,
     },
@@ -37,7 +37,9 @@ export async function getOverviewData() {
       value: countByKualitas(komiks, ["5", "4"]),
       growthRate: -0.95,
     },
-  };
+  }
+  
+  return data;
 }
 
 export async function getChatsData() {
