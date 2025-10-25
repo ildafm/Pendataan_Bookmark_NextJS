@@ -7,7 +7,7 @@ import { TopProductsSkeleton } from "@/components/Tables/top-products/skeleton";
 
 import { Metadata } from "next";
 import { Suspense } from "react";
-import { KomikTable } from "./komiks-table";
+import { KomikTableServer } from "./components/KomikTableServer";
 
 export const metadata: Metadata = {
   title: "Semua Komik",
@@ -27,7 +27,8 @@ const TablesPage = () => {
           <TopProducts />
         </Suspense> */}
 
-        <KomikTable />
+        <KomikTableServer />
+
       </div>
     </>
   );
