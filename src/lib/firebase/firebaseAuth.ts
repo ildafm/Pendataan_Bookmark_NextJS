@@ -27,18 +27,20 @@ export async function userLoginWithEmail(email: string, password: string){
 }
 
 export async function userLogout(): Promise<void> {
-    alert("Logout")
-    // method untuk logout
-    const auth = getAuth();
-    try {
-        await signOut(auth);
+    if (confirm("Are you sure to logout?")){
+        // method untuk logout
+        const auth = getAuth();
+        try {
+            await signOut(auth);
 
-        // ❌ hapus cookie token
-        document.cookie = "token=; path=/; max-age=0; Secure; SameSite=Lax";
+            // ❌ hapus cookie token
+            document.cookie = "token=; path=/; max-age=0; Secure; SameSite=Lax";
 
-        console.log("✅ User berhasil logout & cookie dihapus");
-        window.location.href = "/login"; // redirect ke login
-    } catch (error) {
-        console.error("Error saat logout:", error);
+            console.log("✅ User berhasil logout & cookie dihapus");
+            window.location.href = "/login"; // redirect ke login
+        } catch (error) {
+            console.error("Error saat logout:", error);
+        }
     }
+
 }
