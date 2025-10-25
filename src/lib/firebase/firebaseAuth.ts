@@ -27,12 +27,17 @@ export async function userLoginWithEmail(email: string, password: string){
 }
 
 export async function userLogout(): Promise<void> {
+    alert("Logout")
     // method untuk logout
-    alert("Proses Logout")
     const auth = getAuth();
     try {
         await signOut(auth);
-        console.log("User berhasil logout");
+
+        // ❌ hapus cookie token
+        document.cookie = "token=; path=/; max-age=0; Secure; SameSite=Lax";
+
+        console.log("✅ User berhasil logout & cookie dihapus");
+        window.location.href = "/login"; // redirect ke login
     } catch (error) {
         console.error("Error saat logout:", error);
     }
