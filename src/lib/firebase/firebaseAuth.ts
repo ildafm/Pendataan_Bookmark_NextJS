@@ -2,6 +2,8 @@ import { getAuth, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth } from "./firebaseConfig";
 
 export async function userLoginWithEmail(email: string, password: string){
+    // const auth = getAuth();
+
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
 
     // ✅ User berhasil login
@@ -12,6 +14,9 @@ export async function userLoginWithEmail(email: string, password: string){
     // Mendapatkan token setelah login berhasil
     const token = await user.getIdToken();
     // console.log("ID Token:", token);
+
+     // Simpan token ke cookie (supaya bisa dibaca middleware)
+    document.cookie = `token=${token}; path=/; max-age=3600; Secure; SameSite=Lax`;
 
     // Set cookie menggunakan nookies
     // setCookie(null, "token", idToken, {
