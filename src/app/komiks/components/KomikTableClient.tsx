@@ -28,7 +28,9 @@ export default function KomikTableClient({ data }: { data: any[] }) {
   const [search, setSearch] = useState("");
   const isMobile = useIsMobile();
 
-  console.log(isMobile);
+  const totalEntries = data.length;
+  const start = (page - 1) * rowsPerPage + 1;
+  const end = Math.min(page * rowsPerPage, totalEntries);
 
   // const currentData = data.slice(startIndex, startIndex + rowsPerPage);
 
@@ -74,7 +76,10 @@ export default function KomikTableClient({ data }: { data: any[] }) {
             ]}
             defaultValue="5"
             prefixIcon={<GlobeIcon />}
-            onChange={(e) => setRowPerPage(Number(e.target.value))}
+            onChange={(e) => {
+              setRowPerPage(Number(e.target.value));
+              setPage(1);
+            }}
           />
           {/* end row per page select */}
 
@@ -100,7 +105,7 @@ export default function KomikTableClient({ data }: { data: any[] }) {
         <Table>
           <TableHeader>
             <TableRow className="border-none bg-[#F7F9FC] dark:bg-dark-2 [&>th]:py-4 [&>th]:text-base [&>th]:text-dark [&>th]:dark:text-white">
-              <TableHead>Nomor</TableHead>
+              <TableHead>No</TableHead>
               <TableHead>Actions</TableHead>
               <TableHead>Judul</TableHead>
               <TableHead>Jenis</TableHead>
@@ -114,7 +119,7 @@ export default function KomikTableClient({ data }: { data: any[] }) {
               <TableRow key={item.id}>
                 <TableCell>{startIndex + index + 1}</TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-x-3.5">
+                  <div className="flex flex-col items-center gap-x-3.5 gap-y-3.5 md:flex-row">
                     <button className="hover:text-primary">
                       <PreviewIcon />
                     </button>
@@ -126,7 +131,9 @@ export default function KomikTableClient({ data }: { data: any[] }) {
                     </button>
                   </div>
                 </TableCell>
-                <TableCell>{item.judul}</TableCell>
+                <TableCell className="max-w-[300px]">
+                  <h5 className="text-dark dark:text-white">{item.judul}</h5>
+                </TableCell>
                 <TableCell>
                   <h5 className="text-dark dark:text-white">
                     {item.jenis_komik_ref}
@@ -140,12 +147,23 @@ export default function KomikTableClient({ data }: { data: any[] }) {
                     className={cn(
                       "max-w-fit rounded-full px-3.5 py-1 text-sm font-medium",
                       {
-                        "bg-[#219653]/[0.08] text-[#219653]":
-                          item.status_komik === "SD",
-                        "bg-[#D34053]/[0.08] text-[#D34053]":
-                          item.status_komik === "BeD",
-                        "bg-[#FFA70B]/[0.08] text-[#FFA70B]":
-                          item.status_komik === "MU",
+                        "bg-[#2F80ED]/[0.15] text-[#2F80ED] dark:bg-[#2F80ED]/[0.08] dark:text-[#2F80ED]":
+                          item.status_komik === "SD", // Sedang Dibaca
+
+                        "bg-[#FFA70B]/[0.15] text-[#FFA70B] dark:bg-[#FFA70B]/[0.08] dark:text-[#FFA70B]":
+                          item.status_komik === "BeD", // Berhenti Dibaca
+
+                        "bg-[#9B51E0]/[0.15] text-[#9B51E0] dark:bg-[#9B51E0]/[0.08] dark:text-[#9B51E0]":
+                          item.status_komik === "MU", // Menunggu Update
+
+                        "bg-[#27AE60]/[0.15] text-[#27AE60] dark:bg-[#27AE60]/[0.08] dark:text-[#27AE60]":
+                          item.status_komik === "KT", // Komik Tamat
+
+                        "bg-[#828282]/[0.15] text-[#4F4F4F] dark:bg-[#828282]/[0.08] dark:text-[#828282]":
+                          item.status_komik === "BD", // Belum Dibaca
+
+                        "bg-[#EB5757]/[0.15] text-[#EB5757] dark:bg-[#EB5757]/[0.08] dark:text-[#EB5757]":
+                          item.status_komik === "DDS", // Drop dari Sumber
                       },
                     )}
                   >
@@ -157,7 +175,7 @@ export default function KomikTableClient({ data }: { data: any[] }) {
                     {formatMillisToDate(item.updated_at)}
                   </h5>
                   <p className="mt-[3px] text-body-sm font-medium">
-                    {formatMillisToDaysAgo(item.updated_at)}
+                    {formatMillisToDaysAgo(item.updated_at, isMobile)}
                   </p>
                 </TableCell>
               </TableRow>
@@ -169,7 +187,7 @@ export default function KomikTableClient({ data }: { data: any[] }) {
         {/* Pagination control */}
         <div className="mt-4 flex flex-col items-center md:flex-row md:justify-between">
           <span>
-            Showing {page} to {rowsPerPage} of {data.length} entries
+            Showing {start} to {end} of {totalEntries} entries
           </span>
 
           <div className="flex items-center">

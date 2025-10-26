@@ -63,7 +63,7 @@ export function formatMillisToDate(millis: number): string {
   return `${day} ${month} ${year}`;
 }
 
-export function formatMillisToDaysAgo(millis: number): string {
+export function formatMillisToDaysAgo(millis: number, isMobile: boolean = false): string {
   const now = Date.now();
   const diff = now - millis;
 
@@ -74,12 +74,20 @@ export function formatMillisToDaysAgo(millis: number): string {
   const months = Math.floor(days / 30);
   const years = Math.floor(days / 365);
 
-  if (seconds < 60) return "just now";
-  if (minutes < 60) return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
-  if (hours < 24) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
-  if (days < 30) return `${days} day${days > 1 ? "s" : ""} ago`;
-  if (months < 12) return `${months} month${months > 1 ? "s" : ""} ago`;
-  if (years < 5) return `${years} year${years > 1 ? "s" : ""} ago`;
+  const short = isMobile;
 
-  return "a very long time ago";
+  const thresholds = [
+    { value: seconds, limit: 60, short: "just now", long: "just now" },
+    { value: minutes, limit: 60, short: `${minutes}min ago`, long: `${minutes} minute${minutes > 1 ? "s" : ""} ago` },
+    { value: hours,   limit: 24, short: `${hours}h ago`, long: `${hours} hour${hours > 1 ? "s" : ""} ago` },
+    { value: days,    limit: 30, short: `${days}d ago`, long: `${days} day${days > 1 ? "s" : ""} ago` },
+    { value: months,  limit: 12, short: `${months}m ago`, long: `${months} month${months > 1 ? "s" : ""} ago` },
+    { value: years,   limit: 5,  short: `${years}y ago`, long: `${years} year${years > 1 ? "s" : ""} ago` },
+  ];
+
+  for (const { value, limit, short: s, long: l } of thresholds) {
+    if (value < limit) return short ? s : l;
+  }
+
+  return short ? "long time" : "a very long time ago";
 }

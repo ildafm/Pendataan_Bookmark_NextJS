@@ -17,12 +17,10 @@ export async function KomikTableServer() {
     .where("email", "==", email)
     .get();
 
-  const snapshotJenisKomik = await adminDb
-    .collection("jenis_komiks")
-    .get();
+  const snapshotJenisKomik = await adminDb.collection("jenis_komiks").get();
 
   const jenisMap = {};
-  snapshotJenisKomik.docs.forEach(doc => {
+  snapshotJenisKomik.docs.forEach((doc) => {
     jenisMap[doc.id] = doc.data(); // bisa juga pilih hanya field 'jenis' jika mau
   });
 
@@ -37,8 +35,15 @@ export async function KomikTableServer() {
       ...data,
       created_at: data.created_at?.toMillis?.() ?? null,
       updated_at: data.updated_at?.toMillis?.() ?? null,
-      jenis_komik_ref: jenisId ? jenisMap[jenisId]?.jenis ?? null : null, // optional convert
+      jenis_komik_ref: jenisId ? (jenisMap[jenisId]?.jenis ?? null) : null, // optional convert
     };
+  });
+
+  // urutkan secara manual berdasarkan `update_at`
+  komikList.sort((a, b) => {
+    const timeA = a.updated_at;
+    const timeB = b.updated_at;
+    return timeB - timeA; // descending
   });
 
   return <KomikTableClient data={komikList} />;
