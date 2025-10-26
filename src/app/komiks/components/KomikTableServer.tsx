@@ -41,8 +41,5 @@ export async function KomikTableServer() {
     };
   });
 
-  // console.log(komikList[0]);
-  
-
   return <KomikTableClient data={komikList} />;
 }
