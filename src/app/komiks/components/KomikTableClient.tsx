@@ -9,7 +9,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { GlobeIcon, SearchIcon, TrashIcon } from "@/assets/icons";
+import {
+  GlobeIcon,
+  PencilSquareIcon,
+  SearchIcon,
+  TrashIcon,
+} from "@/assets/icons";
 import { DownloadIcon, PreviewIcon } from "../../../components/Tables/icons";
 import { cn } from "@/lib/utils";
 import {
@@ -21,12 +26,15 @@ import {
 import { Button } from "@/components/ui-elements/button";
 import { Select } from "@/components/FormElements/select";
 import { useIsMobile } from "@/hooks/use-mobile";
+import ModalEditData from "./ModalEditData";
 
 export default function KomikTableClient({ data }: { data: any[] }) {
+  const isMobile = useIsMobile();
+
+  // start display data -----------------------------------------------
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowPerPage] = useState(5); // jumlah data per halaman - default: 5
   const [search, setSearch] = useState("");
-  const isMobile = useIsMobile();
 
   const totalEntries = data.length;
   const start = (page - 1) * rowsPerPage + 1;
@@ -53,6 +61,27 @@ export default function KomikTableClient({ data }: { data: any[] }) {
   const startIndex = (page - 1) * rowsPerPage;
 
   displayedData = filteredData.slice(startIndex, startIndex + rowsPerPage);
+  // end display data -------------------------------------------------
+
+  // start modal manage -------------------------------------------------
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+
+  const handleOpenModal = (item) => {
+    console.log("open modal");
+
+    setSelectedItem(item);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    console.log("close modal");
+
+    setIsModalOpen(false);
+    setSelectedItem(null);
+  };
+
+  // end modal manage ----------------------------------------------------
 
   // scroll ke atas tiap ganti halaman
   useEffect(() => {
@@ -123,11 +152,14 @@ export default function KomikTableClient({ data }: { data: any[] }) {
                     <button className="hover:text-primary">
                       <PreviewIcon />
                     </button>
-                    <button className="hover:text-primary">
-                      <TrashIcon />
+                    <button
+                      className="hover:text-primary"
+                      onClick={() => handleOpenModal(item)}
+                    >
+                      <PencilSquareIcon />
                     </button>
                     <button className="hover:text-primary">
-                      <DownloadIcon />
+                      <TrashIcon />
                     </button>
                   </div>
                 </TableCell>
@@ -214,6 +246,13 @@ export default function KomikTableClient({ data }: { data: any[] }) {
             />
           </div>
           {/* End Pagination control */}
+
+          {/* modal control */}
+
+          {isModalOpen && selectedItem && (
+            <ModalEditData item={selectedItem} onClose={handleCloseModal} />
+          )}
+          {/* end modal control */}
         </div>
       </div>
     </div>
