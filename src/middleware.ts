@@ -5,28 +5,54 @@ import { jwtVerify } from "jose";
 const FIREBASE_PROJECT_ID = process.env.FIREBASE_PROJECT_ID!;
 const ISSUER = `https://securetoken.google.com/${FIREBASE_PROJECT_ID}`;
 
+async function refreshFirebaseToken(refreshToken: string) {
+  const response = await fetch(`https://securetoken.googleapis.com/v1/token?key=${process.env.FIREBASE_API_KEY}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `grant_type=refresh_token&refresh_token=${refreshToken}`,
+  });
+  const data = await response.json();
+
+  if (!response.ok) throw new Error("Failed to refresh token");
+
+  return data.id_token as string;
+}
+
 export async function middleware(req: NextRequest) {
   const token = req.cookies.get("token")?.value;
+  const refreshToken = req.cookies.get("refreshToken")?.value;
 
-  if (!token) {
+  if (!token && !refreshToken) {
     return NextResponse.redirect(new URL("/auth/sign-in", req.url));
   }
 
   try {
-    // 🔒 Verifikasi JWT secara manual di Edge Runtime
-    const decoded = await verifyFirebaseToken(token);
-
-    console.log("✅ Middleware verified:", decoded.email);
-
+    const decoded = await verifyFirebaseToken(token!);
+    console.log("✅ Token valid:", decoded.email);
     const res = NextResponse.next();
     res.headers.set("x-user-email", decoded.email || "");
-
     return res;
   } catch (err) {
-    console.error("❌ Invalid token:", err);
+    // kalau token expired, coba refresh
+    if (refreshToken) {
+      try {
+        const newIdToken = await refreshFirebaseToken(refreshToken);
+
+        const newRes = NextResponse.next();
+        newRes.cookies.set("token", newIdToken, {
+          httpOnly: true,
+          maxAge: 60 * 60 * 24 * 30, // 30 hari
+        });
+        return newRes;
+      } catch {
+        console.error("❌ Refresh token invalid, redirect to login");
+      }
+    }
+
     return NextResponse.redirect(new URL("/auth/sign-in", req.url));
   }
 }
+
 
 async function verifyFirebaseToken(token: string) {
   const JWKS_URL = `https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com`;

@@ -47,7 +47,7 @@ export function Button({
   shape,
   size,
   className,
-  disabledButton,
+  disabledButton = false,
   ...props
 }: ButtonProps) {
   return (

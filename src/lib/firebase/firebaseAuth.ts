@@ -1,46 +1,37 @@
 import { getAuth, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth } from "./firebaseConfig";
 
-export async function userLoginWithEmail(email: string, password: string){
-    // const auth = getAuth();
 
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+export async function userLoginWithEmail(email: string, password: string) {
+  const userCredential = await signInWithEmailAndPassword(auth, email, password);
+  const user = userCredential.user;
 
-    // ✅ User berhasil login
-    const user = userCredential.user;
-    // console.log("Login berhasil, UID:", user.uid);
-    // console.log("Email:", user.email);
+  // Dapatkan ID token dan refresh token
+  const idToken = await user.getIdToken();
+  const refreshToken = user.refreshToken;
 
-    // Mendapatkan token setelah login berhasil
-    const token = await user.getIdToken();
-    // console.log("ID Token:", token);
+  // Simpan keduanya di cookie (1 bulan)
+  document.cookie = `token=${idToken}; path=/; max-age=${60 * 60 * 24 * 30}; Secure; SameSite=Lax`;
+  document.cookie = `refreshToken=${refreshToken}; path=/; max-age=${60 * 60 * 24 * 30}; Secure; SameSite=Lax`;
 
-     // Simpan token ke cookie (supaya bisa dibaca middleware)
-    document.cookie = `token=${token}; path=/; max-age=3600; Secure; SameSite=Lax`;
-
-    // Set cookie menggunakan nookies
-    // setCookie(null, "token", idToken, {
-    //   maxAge: 30 * 24 * 60 * 60, // 30 hari
-    //   path: "/", // Dapat diakses di seluruh aplikasi
-    // });
-    // return user;
+  console.log("✅ Login berhasil, cookie tersimpan");
 }
 
+
 export async function userLogout(): Promise<void> {
-    if (confirm("Are you sure to logout?")){
-        // method untuk logout
-        const auth = getAuth();
-        try {
-            await signOut(auth);
+  if (confirm("Are you sure to logout?")) {
+    try {
+      const auth = getAuth();
+      await signOut(auth);
 
-            // ❌ hapus cookie token
-            document.cookie = "token=; path=/; max-age=0; Secure; SameSite=Lax";
+      // Hapus kedua cookie
+      document.cookie = "token=; path=/; max-age=0; Secure; SameSite=Lax";
+      document.cookie = "refreshToken=; path=/; max-age=0; Secure; SameSite=Lax";
 
-            console.log("✅ User berhasil logout & cookie dihapus");
-            window.location.href = "/login"; // redirect ke login
-        } catch (error) {
-            console.error("Error saat logout:", error);
-        }
+      console.log("✅ User berhasil logout & cookie dihapus");
+      window.location.href = "/auth/sign-in";
+    } catch (error) {
+      console.error("Error saat logout:", error);
     }
-
+  }
 }

@@ -16,7 +16,7 @@ export const NAV_DATA = [
       },
       {
         title: "Komik",
-        icon: Icons.HomeIcon,
+        icon: Icons.Table,
         items: [
           {
             title: "Semua Komik",

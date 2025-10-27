@@ -96,7 +96,7 @@ export default function KomikTableClient({ data }: { data: any[] }) {
   return (
     <div>
       <div className="rounded-[10px] border border-stroke bg-white p-4 shadow-1 dark:border-dark-3 dark:bg-gray-dark dark:shadow-card sm:p-7.5">
-        {/* RowPerPage and Search Column */}
+        {/* RowPerPage and Search Column, add data */}
         <div className="mb-4 flex items-center justify-between">
           {/* Row per page select */}
           <Select
@@ -117,21 +117,35 @@ export default function KomikTableClient({ data }: { data: any[] }) {
           />
           {/* end row per page select */}
 
-          {/* search bar */}
-          <div className="relative w-34 max-w-[300px] self-end md:w-full">
-            <input
-              type="search"
-              placeholder="Search"
-              className="flex w-full items-center gap-3.5 rounded-full border bg-gray-2 py-3 pl-[53px] pr-5 outline-none transition-colors focus-visible:border-primary dark:border-dark-3 dark:bg-dark-2 dark:hover:border-dark-4 dark:hover:bg-dark-3 dark:hover:text-dark-6 dark:focus-visible:border-primary"
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setPage(1);
-              }}
-            />
+          {/* search bar and add data button */}
+          <div className="ml-2 flex flex-col-reverse justify-between self-end sm:ml-0 sm:flex-row">
+            {/* search bar */}
+            <div className="relative w-36 max-w-[300px] sm:mr-2 sm:w-full">
+              <input
+                type="search"
+                placeholder="Search"
+                className="flex w-full items-center gap-3.5 rounded-full border bg-gray-3 py-3 pl-[53px] pr-5 transition-colors focus-visible:border-primary dark:border-dark-3 dark:bg-dark-2 dark:outline-none dark:hover:border-dark-4 dark:hover:bg-dark-3 dark:hover:text-dark-6 dark:focus-visible:border-primary"
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
+              />
 
-            <SearchIcon className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 max-[1015px]:size-5" />
+              <SearchIcon className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 max-[1015px]:size-5" />
+            </div>
+            {/* end search bar */}
+
+            {/* add data button */}
+            <Button
+              label={isMobile ? "Add Komik" : "+"}
+              variant="outlineDark"
+              shape="full"
+              size="small"
+              onClick={() => alert("WIP")}
+              className="mb-2 text-sm sm:mb-0"
+            />
+            {/* end add data button */}
           </div>
-          {/* end search bar */}
         </div>
         {/* End RowPerPage and Search Column */}
 

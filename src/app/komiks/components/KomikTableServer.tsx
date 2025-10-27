@@ -1,50 +1,32 @@
-import { headers } from "next/headers";
-import { adminDb } from "@/lib/firebase/firebaseAdmin";
+import { cookies } from "next/headers";
 import KomikTableClient from "./KomikTableClient";
 
 export const dynamic = "force-dynamic";
 
 export async function KomikTableServer() {
-  const headersList = await headers();
-  const email = headersList.get("x-user-email");
+  const cookieStore = cookies();
+  console.log("cookie: ", cookieStore);
 
-  if (!email) {
+  const token = cookieStore.get("token")?.value;
+
+  if (!token) {
     return <div>Anda belum login.</div>;
   }
 
-  const snapshotKomik = await adminDb
-    .collection("komiks")
-    .where("email", "==", email)
-    .get();
-
-  const snapshotJenisKomik = await adminDb.collection("jenis_komiks").get();
-
-  const jenisMap: any = {};
-  snapshotJenisKomik.docs.forEach((doc) => {
-    jenisMap[doc.id] = doc.data(); // bisa juga pilih hanya field 'jenis' jika mau
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/komik`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    cache: "no-store",
   });
 
-  // console.log(jenisMap);
+  if (!res.ok) {
+    console.error("❌ Gagal fetch komik:", await res.text());
+    return <div>Gagal memuat data komik.</div>;
+  }
 
-  const komikList = snapshotKomik.docs.map((doc) => {
-    const data = doc.data();
-    const jenisId = data.jenis_komik_ref?._path?.segments[1] ?? null;
-
-    return {
-      id: doc.id,
-      ...data,
-      created_at: data.created_at?.toMillis?.() ?? null,
-      updated_at: data.updated_at?.toMillis?.() ?? null,
-      jenis_komik_ref: jenisId ? (jenisMap[jenisId]?.jenis ?? null) : null, // optional convert
-    };
-  });
-
-  // urutkan secara manual berdasarkan `update_at`
-  komikList.sort((a, b) => {
-    const timeA = a.updated_at;
-    const timeB = b.updated_at;
-    return timeB - timeA; // descending
-  });
+  const result = await res.json();
+  const komikList = result.data || [];
 
   return <KomikTableClient data={komikList} />;
 }
