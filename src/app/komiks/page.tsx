@@ -1,7 +1,7 @@
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 
 import { Metadata } from "next";
-import { KomikTableServer } from "./components/KomikTableServer";
+import KomikTableServer from "./components/KomikTableServer";
 
 export const metadata: Metadata = {
   title: "Semua Komik",
