@@ -25,7 +25,7 @@ import {
 import { Button } from "@/components/ui-elements/button";
 import { Select } from "@/components/FormElements/select";
 import { useIsMobile } from "@/hooks/use-mobile";
-import ModalEditKomik from "./ModalEditKomik";
+import { ModalEditKomik } from "./ModalKomikPage";
 
 export default function KomikTableClient({ data }: { data: any[] }) {
   const isMobile = useIsMobile();
@@ -35,13 +35,8 @@ export default function KomikTableClient({ data }: { data: any[] }) {
   const [rowsPerPage, setRowPerPage] = useState(5); // jumlah data per halaman - default: 5
   const [search, setSearch] = useState("");
 
-  const totalEntries = data.length;
-  const start = (page - 1) * rowsPerPage + 1;
-  const end = Math.min(page * rowsPerPage, totalEntries);
-
   // const currentData = data.slice(startIndex, startIndex + rowsPerPage);
 
-  // filter by search
   // filter by multi-keyword search
   const filteredData = data.filter((item) => {
     // pecah input menjadi array kata (hapus spasi ganda)
@@ -55,7 +50,7 @@ export default function KomikTableClient({ data }: { data: any[] }) {
     ${getKualitasKomik(item.kualitas_komik)}
   `.toLowerCase();
 
-    // pastikan SEMUA kata ada di teks gabungan
+    // pastikan semua kata ada di teks gabungan
     return keywords.every((kw) => combined.includes(kw));
   });
 
@@ -66,6 +61,12 @@ export default function KomikTableClient({ data }: { data: any[] }) {
 
   displayedData = filteredData.slice(startIndex, startIndex + rowsPerPage);
   // end display data -------------------------------------------------
+
+  //  start total entries display -------------------------------------------
+  const totalEntries = filteredData.length;
+  const start = (page - 1) * rowsPerPage + 1;
+  const end = Math.min(page * rowsPerPage, totalEntries);
+  //  end total entries display -------------------------------------------
 
   // start modal manage -------------------------------------------------
   const [isModalOpen, setIsModalOpen] = useState(false);

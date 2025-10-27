@@ -4,7 +4,7 @@ import { ShowcaseSection } from "@/components/Layouts/showcase-section";
 import { elipsesText } from "@/utils/generalHandler";
 import { useEffect } from "react";
 
-export default function ModalEditKomik({
+export function ModalEditKomik({
   item,
   onClose,
 }: {
