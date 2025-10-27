@@ -37,6 +37,7 @@ type ButtonProps = HTMLAttributes<HTMLButtonElement> &
   VariantProps<typeof buttonVariants> & {
     label: string;
     icon?: React.ReactNode;
+    disabledButton?: boolean;
   };
 
 export function Button({
@@ -46,10 +47,12 @@ export function Button({
   shape,
   size,
   className,
+  disabledButton,
   ...props
 }: ButtonProps) {
   return (
     <button
+      disabled={disabledButton}
       className={buttonVariants({ variant, shape, size, className })}
       {...props}
     >

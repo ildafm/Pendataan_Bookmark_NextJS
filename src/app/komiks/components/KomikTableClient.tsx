@@ -17,16 +17,15 @@ import {
 } from "@/assets/icons";
 import { DownloadIcon, PreviewIcon } from "../../../components/Tables/icons";
 import { cn } from "@/lib/utils";
+import { getKualitasKomik, getStatusKomik } from "@/utils/komikHandler";
 import {
   formatMillisToDate,
   formatMillisToDaysAgo,
-  getKualitasKomik,
-  getStatusKomik,
-} from "@/utils/komikHandler";
+} from "@/utils/generalHandler";
 import { Button } from "@/components/ui-elements/button";
 import { Select } from "@/components/FormElements/select";
 import { useIsMobile } from "@/hooks/use-mobile";
-import ModalEditData from "./ModalEditData";
+import ModalEditKomik from "./ModalEditKomik";
 
 export default function KomikTableClient({ data }: { data: any[] }) {
   const isMobile = useIsMobile();
@@ -43,17 +42,22 @@ export default function KomikTableClient({ data }: { data: any[] }) {
   // const currentData = data.slice(startIndex, startIndex + rowsPerPage);
 
   // filter by search
-  const filteredData = data.filter(
-    (item) =>
-      item.judul.toLowerCase().includes(search.toLowerCase()) ||
-      item.jenis_komik_ref.toLowerCase().includes(search.toLowerCase()) ||
-      getStatusKomik(item.status_komik)
-        .toLowerCase()
-        .includes(search.toLowerCase()) ||
-      getKualitasKomik(item.kualitas_komik)
-        .toLowerCase()
-        .includes(search.toLowerCase()),
-  );
+  // filter by multi-keyword search
+  const filteredData = data.filter((item) => {
+    // pecah input menjadi array kata (hapus spasi ganda)
+    const keywords = search.toLowerCase().trim().split(/\s+/);
+
+    // gabungkan semua kolom jadi satu string agar lebih simpel untuk dicari
+    const combined = `
+    ${item.judul}
+    ${item.jenis_komik_ref}
+    ${getStatusKomik(item.status_komik)}
+    ${getKualitasKomik(item.kualitas_komik)}
+  `.toLowerCase();
+
+    // pastikan SEMUA kata ada di teks gabungan
+    return keywords.every((kw) => combined.includes(kw));
+  });
 
   let displayedData = filteredData.slice(0, rowsPerPage);
 
@@ -67,15 +71,15 @@ export default function KomikTableClient({ data }: { data: any[] }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
 
-  const handleOpenModal = (item) => {
-    console.log("open modal");
+  const handleOpenModal = (item: any) => {
+    // console.log("open modal");
 
     setSelectedItem(item);
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
-    console.log("close modal");
+    // console.log("close modal");
 
     setIsModalOpen(false);
     setSelectedItem(null);
@@ -228,7 +232,7 @@ export default function KomikTableClient({ data }: { data: any[] }) {
               variant="dark"
               shape="full"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
+              disabledButton={page === 1}
               className="text-sm disabled:opacity-50"
             />
             <span className="mx-4 text-sm text-gray-600">
@@ -241,7 +245,7 @@ export default function KomikTableClient({ data }: { data: any[] }) {
               variant="dark"
               shape="full"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
+              disabledButton={page === totalPages}
               className="text-sm disabled:opacity-50"
             />
           </div>
@@ -250,7 +254,7 @@ export default function KomikTableClient({ data }: { data: any[] }) {
           {/* modal control */}
 
           {isModalOpen && selectedItem && (
-            <ModalEditData item={selectedItem} onClose={handleCloseModal} />
+            <ModalEditKomik item={selectedItem} onClose={handleCloseModal} />
           )}
           {/* end modal control */}
         </div>

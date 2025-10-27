@@ -19,7 +19,7 @@ export async function KomikTableServer() {
 
   const snapshotJenisKomik = await adminDb.collection("jenis_komiks").get();
 
-  const jenisMap = {};
+  const jenisMap: any = {};
   snapshotJenisKomik.docs.forEach((doc) => {
     jenisMap[doc.id] = doc.data(); // bisa juga pilih hanya field 'jenis' jika mau
   });

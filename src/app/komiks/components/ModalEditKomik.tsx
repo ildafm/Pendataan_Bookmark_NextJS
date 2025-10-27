@@ -1,9 +1,16 @@
 "use client";
 
 import { ShowcaseSection } from "@/components/Layouts/showcase-section";
+import { elipsesText } from "@/utils/generalHandler";
 import { useEffect } from "react";
 
-export default function ModalEditData({ item, onClose }) {
+export default function ModalEditKomik({
+  item,
+  onClose,
+}: {
+  item: any;
+  onClose: () => void;
+}) {
   // 🔒 Lock body scroll saat modal terbuka
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -13,7 +20,7 @@ export default function ModalEditData({ item, onClose }) {
   }, []);
 
   // 🔒 Prevent click dari tembus ke background
-  const stopPropagation = (e) => e.stopPropagation();
+  const stopPropagation = (e: any) => e.stopPropagation();
 
   return (
     <div
@@ -21,10 +28,10 @@ export default function ModalEditData({ item, onClose }) {
       onClick={onClose}
     >
       <ShowcaseSection
-        title="Edit Data Komik"
+        title={`Edit: ${elipsesText(item.judul)}`}
         className="w-64 space-y-5.5 !p-6.5 md:w-96"
       >
-        <div className="" onClick={(e) => e.stopPropagation()}>
+        <div className="item-center" onClick={(e) => e.stopPropagation()}>
           <p className="text-center text-gray-700 dark:text-gray-300">
             <strong className="">{item.judul}</strong>
           </p>
