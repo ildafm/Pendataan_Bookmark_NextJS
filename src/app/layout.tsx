@@ -1,7 +1,6 @@
 import "@/css/satoshi.css";
 import "@/css/style.css";
 
-
 import "flatpickr/dist/flatpickr.min.css";
 import "jsvectormap/dist/jsvectormap.css";
 
@@ -15,8 +14,7 @@ export const metadata: Metadata = {
     template: "%s | Pendataan Bookmark",
     default: "Pendataan Bookmark",
   },
-  description:
-    "Aplikasi berbasis web untuk mendata bookmark komik.",
+  description: "Aplikasi berbasis web untuk mendata bookmark komik.",
 };
 
 export default function RootLayout({ children }: PropsWithChildren) {
@@ -25,7 +23,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
       <body>
         <Providers>
           <NextTopLoader color="#5750F1" showSpinner={false} />
-          
+
           {children}
         </Providers>
       </body>

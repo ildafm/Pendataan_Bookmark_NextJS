@@ -26,8 +26,15 @@ import { Button } from "@/components/ui-elements/button";
 import { Select } from "@/components/FormElements/select";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ModalEditKomik } from "./ModalKomikPage";
+import SingleAddKomikForm from "./SingleAddKomikForm";
 
-export default function KomikTableClient({ data }: { data: any[] }) {
+export default function KomikTableClient({
+  data,
+  jenisKomikList,
+}: {
+  data: any[];
+  jenisKomikList: any[];
+}) {
   const isMobile = useIsMobile();
 
   // start display data -----------------------------------------------
@@ -88,10 +95,25 @@ export default function KomikTableClient({ data }: { data: any[] }) {
 
   // end modal manage ----------------------------------------------------
 
+  // useEffectList ----------------------------------------------------
   // scroll ke atas tiap ganti halaman
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [page]);
+  // end useEffectList ----------------------------------------------------
+
+  // add more komik form change manage --------------------------------------------------
+  const [openAddKomikForm, setOpenAddKomikForm] = useState(false);
+  // end add more komik form change manage ----------------------------------------------
+
+  if (openAddKomikForm) {
+    return (
+      <SingleAddKomikForm
+        jenisKomikList={jenisKomikList}
+        setOpenAddKomikForm={setOpenAddKomikForm}
+      />
+    );
+  }
 
   return (
     <div>
@@ -137,11 +159,12 @@ export default function KomikTableClient({ data }: { data: any[] }) {
 
             {/* add data button */}
             <Button
-              label={isMobile ? "Add Komik" : "+"}
+              label={isMobile ? "Tambah Komik" : "+"}
+              title="Tambah data komik"
               variant="outlineDark"
               shape="full"
               size="small"
-              onClick={() => alert("WIP")}
+              onClick={() => setOpenAddKomikForm(true)}
               className="mb-2 text-sm sm:mb-0"
             />
             {/* end add data button */}

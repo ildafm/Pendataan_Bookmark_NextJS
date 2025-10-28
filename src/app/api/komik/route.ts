@@ -12,7 +12,8 @@ export async function GET(request: Request) {
     let query = adminDb
       .collection(collectionName)
       .where("email", "==", email)
-      .orderBy("updated_at", "desc"); // ✅ urutkan berdasarkan updated_at terbaru
+      .limit(5)
+      .orderBy("updated_at", "desc"); // ✅ urutkan berdasarkan updated_at terbaru // membutuhkan index di firestore
 
     // (Opsional) batasi jumlah data
     // query = query.limit(50);
@@ -65,12 +66,29 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    // ✅ Verifikasi token
     const decoded = await verifyAuthToken(request);
     const email = decoded.email;
+
+    // Ambil data dari body
     const data = await request.json();
 
+    // 🔗 Buat reference ke jenis_komiks berdasarkan ID yang dikirim
+    const jenisKomikRef = adminDb
+      .collection("jenis_komiks")
+      .doc(data.jenis_komik);
+
+    // Simpan ke Firestore (dengan relasi)
     const docRef = await adminDb.collection(collectionName).add({
-      ...data,
+      judul: data.judul,
+      judul_alt: data.judul_alt,
+      link_bookmark: data.link_bookmark,
+      link_cover: data.link_cover,
+      chapter_terakhir: data.chapter_terakhir,
+      status_komik: data.status_komik,
+      kualitas_komik: data.kualitas_komik,
+      deskripsi: data.deskripsi,
+      jenis_komik_ref: jenisKomikRef, // ✅ reference, bukan string
       email,
       created_at: new Date(),
       updated_at: new Date(),
@@ -81,7 +99,7 @@ export async function POST(request: Request) {
     console.error("POST /api/komik error:", error);
     return NextResponse.json(
       { success: false, message: error.message },
-      { status: 401 },
+      { status: error.code === "auth/argument-error" ? 401 : 500 },
     );
   }
 }
