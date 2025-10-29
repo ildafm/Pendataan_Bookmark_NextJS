@@ -25,8 +25,8 @@ import {
 import { Button } from "@/components/ui-elements/button";
 import { Select } from "@/components/FormElements/select";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ModalEditKomik } from "./ModalKomikPage";
 import SingleAddKomikForm from "./SingleAddKomikForm";
+import SingleEditKomikForm from "./SingleEditKomikForm";
 
 export default function KomikTableClient({
   data,
@@ -75,25 +75,20 @@ export default function KomikTableClient({
   const end = Math.min(page * rowsPerPage, totalEntries);
   //  end total entries display -------------------------------------------
 
-  // start modal manage -------------------------------------------------
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // start edit form manage -------------------------------------------------
+  const [isOpenEditForm, setIsOpenEditForm] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
 
-  const handleOpenModal = (item: any) => {
-    // console.log("open modal");
-
+  const handleOpenEditForm = (item: any) => {
     setSelectedItem(item);
-    setIsModalOpen(true);
+    setIsOpenEditForm(true);
   };
 
-  const handleCloseModal = () => {
-    // console.log("close modal");
-
-    setIsModalOpen(false);
+  const handleCloseEditForm = () => {
+    setIsOpenEditForm(false);
     setSelectedItem(null);
   };
-
-  // end modal manage ----------------------------------------------------
+  // end edit form manage ----------------------------------------------------
 
   // useEffectList ----------------------------------------------------
   // scroll ke atas tiap ganti halaman
@@ -103,17 +98,29 @@ export default function KomikTableClient({
   // end useEffectList ----------------------------------------------------
 
   // add more komik form change manage --------------------------------------------------
-  const [openAddKomikForm, setOpenAddKomikForm] = useState(false);
-  // end add more komik form change manage ----------------------------------------------
+  const [isOpenAddKomikForm, setIsOpenAddKomikForm] = useState(false);
 
-  if (openAddKomikForm) {
+  if (isOpenAddKomikForm) {
     return (
       <SingleAddKomikForm
         jenisKomikList={jenisKomikList}
-        setOpenAddKomikForm={setOpenAddKomikForm}
+        setIsOpenAddKomikForm={setIsOpenAddKomikForm}
       />
     );
   }
+  // end add more komik form change manage ----------------------------------------------
+
+  // edit komik form manage ----------------------------------------------------
+  if (isOpenEditForm && selectedItem) {
+    return (
+      <SingleEditKomikForm
+        item={selectedItem}
+        jenisKomikList={jenisKomikList}
+        handleCloseEditForm={handleCloseEditForm}
+      />
+    );
+  }
+  // end edit komik form manage ----------------------------------------------------
 
   return (
     <div>
@@ -164,7 +171,7 @@ export default function KomikTableClient({
               variant="outlineDark"
               shape="full"
               size="small"
-              onClick={() => setOpenAddKomikForm(true)}
+              onClick={() => setIsOpenAddKomikForm(true)}
               className="mb-2 text-sm sm:mb-0"
             />
             {/* end add data button */}
@@ -194,12 +201,16 @@ export default function KomikTableClient({
                     <button className="hover:text-primary">
                       <PreviewIcon />
                     </button>
+
+                    {/* Edit Button */}
                     <button
                       className="hover:text-primary"
-                      onClick={() => handleOpenModal(item)}
+                      onClick={() => handleOpenEditForm(item)}
                     >
                       <PencilSquareIcon />
                     </button>
+                    {/* end edit button */}
+
                     <button className="hover:text-primary">
                       <TrashIcon />
                     </button>
@@ -288,13 +299,6 @@ export default function KomikTableClient({
             />
           </div>
           {/* End Pagination control */}
-
-          {/* modal control */}
-
-          {isModalOpen && selectedItem && (
-            <ModalEditKomik item={selectedItem} onClose={handleCloseModal} />
-          )}
-          {/* end modal control */}
         </div>
       </div>
     </div>

@@ -7,13 +7,20 @@ import { Button } from "@/components/ui-elements/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useEffect, useState } from "react";
 
-export default function SingleAddKomikForm({
+export default function SingleEditKomikForm({
+  item,
   jenisKomikList,
-  setIsOpenAddKomikForm,
+  handleCloseEditForm,
 }: {
+  item: any;
   jenisKomikList: any[];
-  setIsOpenAddKomikForm: any;
+  handleCloseEditForm: any;
 }) {
+  useEffect(() => {
+    console.log("Form ID:", form.id);
+    console.log("Fetch URL:", `/api/komik/${form.id}`);
+  }, [item]);
+
   const isMobile = useIsMobile();
 
   // Ubah data dari server menjadi format yang Select butuhkan
@@ -22,19 +29,23 @@ export default function SingleAddKomikForm({
     value: jenis.id, // atau kode unik jenis komik
   }));
 
+  const matchedJenis = jenisKomik.find(
+    (j) => j.label.toLowerCase() === item.jenis_komik_ref?.toLowerCase(),
+  );
+
   // State untuk form
   const [form, setForm] = useState({
-    judul: "",
-    judul_alt: "",
-    link_bookmark: "",
-    link_cover: "",
-    chapter_terakhir: "",
-    jenis_komik: jenisKomik[0]?.value,
-    status_komik: "BD",
-    kualitas_komik: "0",
-    deskripsi: "",
+    id: item.id,
+    judul: item.judul,
+    judul_alt: item.judul_alt,
+    link_bookmark: item.link_bookmark,
+    link_cover: item.link_cover,
+    chapter_terakhir: item.chapter_terakhir,
+    jenis_komik: matchedJenis?.value || jenisKomik[0]?.value,
+    status_komik: item.status_komik,
+    kualitas_komik: item.kualitas_komik,
+    deskripsi: item.deskripsi,
   });
-
   // Handle perubahan input
   const handleChange = (key: string, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -54,13 +65,14 @@ export default function SingleAddKomikForm({
         setAlert({
           variant: "warning",
           title: "Attention Needed",
-          description: `Kolom ${label} wajib diisi sebelum menyimpan data.`,
+          description: `Kolom ${label} wajib diisi sebelum menyimpan perubahan.`,
         });
         return;
       }
     }
 
     try {
+      // 🔐 Ambil token dari cookie (sama seperti add form)
       const token = document.cookie
         .split("; ")
         .find((row) => row.startsWith("token="))
@@ -76,8 +88,9 @@ export default function SingleAddKomikForm({
         return;
       }
 
-      const res = await fetch("/api/komik", {
-        method: "POST",
+      // 🛠️ Kirim request ke API edit/update
+      const res = await fetch(`/api/komik/${form.id}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -91,14 +104,15 @@ export default function SingleAddKomikForm({
         setAlert({
           variant: "success",
           title: "Berhasil!",
-          description: "Data komik berhasil disimpan ke Database.",
+          description: "Data komik berhasil diperbarui di Database.",
         });
+        handleCloseEditForm(); // Tutup form setelah sukses
       } else {
         setAlert({
           variant: "error",
           title: "Gagal!",
           description:
-            result.message || "Terjadi kesalahan saat menyimpan data.",
+            result.message || "Terjadi kesalahan saat memperbarui data.",
         });
       }
     } catch (err: any) {
@@ -266,7 +280,7 @@ export default function SingleAddKomikForm({
           shape={"full"}
           size={"small"}
           className="mr-4 w-[100px]"
-          onClick={handleSubmit}
+          onClick={() => handleSubmit()}
         />
         <Button
           label="Batal"
@@ -274,7 +288,7 @@ export default function SingleAddKomikForm({
           shape={"full"}
           size={"small"}
           className="w-[100px]"
-          onClick={() => setIsOpenAddKomikForm(false)}
+          onClick={() => handleCloseEditForm()}
         />
       </div>
     </ShowcaseSection>
