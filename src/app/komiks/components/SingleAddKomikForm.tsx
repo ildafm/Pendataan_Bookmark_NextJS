@@ -2,17 +2,20 @@
 import InputGroup from "@/components/FormElements/InputGroup";
 import { Select } from "@/components/FormElements/select";
 import { ShowcaseSection } from "@/components/Layouts/showcase-section";
-import { Alert } from "@/components/ui-elements/alert";
 import { Button } from "@/components/ui-elements/button";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function SingleAddKomikForm({
   jenisKomikList,
   setIsOpenAddKomikForm,
+  setAlert,
+  setKomiks,
 }: {
   jenisKomikList: any[];
   setIsOpenAddKomikForm: any;
+  setAlert: any;
+  setKomiks: any;
 }) {
   const isMobile = useIsMobile();
 
@@ -93,6 +96,30 @@ export default function SingleAddKomikForm({
           title: "Berhasil!",
           description: "Data komik berhasil disimpan ke Database.",
         });
+
+        const selectedJenis = jenisKomikList.find(
+          (j) => j.id === form.jenis_komik,
+        );
+
+        const newKomik = {
+          id: result.id,
+          judul: form.judul,
+          judul_alt: form.judul_alt,
+          link_bookmark: form.link_bookmark,
+          link_cover: form.link_cover,
+          chapter_terakhir: form.chapter_terakhir,
+          status_komik: form.status_komik,
+          kualitas_komik: form.kualitas_komik,
+          deskripsi: form.deskripsi,
+          jenis_komik_ref: selectedJenis?.jenis || "", // ambil nama jenis, bukan ID
+          created_at: Date.now(),
+          updated_at: Date.now(),
+        };
+
+        if (newKomik) {
+          setKomiks((prev: any) => [newKomik, ...prev]);
+          setIsOpenAddKomikForm(false);
+        }
       } else {
         setAlert({
           variant: "error",
@@ -102,6 +129,8 @@ export default function SingleAddKomikForm({
         });
       }
     } catch (err: any) {
+      console.error("Kesalahan Server: ", err);
+
       setAlert({
         variant: "error",
         title: "Kesalahan Server",
@@ -110,47 +139,9 @@ export default function SingleAddKomikForm({
     }
   };
 
-  // alert handle -----------------------------------------------------
-  const [alert, setAlert] = useState<{
-    variant: any;
-    title: string;
-    description: string;
-  } | null>(null);
-  const [visible, setVisible] = useState(false);
-
-  // hilangkan alert setelah beberapa detik
-  useEffect(() => {
-    if (alert) {
-      setVisible(true);
-      const timer = setTimeout(() => setVisible(false), 3500); // mulai fade-out
-      const removeTimer = setTimeout(() => setAlert(null), 4000); // hapus dari DOM
-      return () => {
-        clearTimeout(timer);
-        clearTimeout(removeTimer);
-      };
-    }
-  }, [alert]);
-  // end alert handle -----------------------------------------------------
-
   return (
     <ShowcaseSection title="Tambah data komik" className="space-y-5.5 !p-6.5">
       <h5 className="font-bold text-dark dark:text-white">* Wajib diisi</h5>
-
-      {/* Alert */}
-      {alert && (
-        <div
-          className={`fixed right-6 top-20 z-50 transition-all duration-500 ${
-            visible ? "-translate-x-0 opacity-100" : "translate-x-2 opacity-0"
-          }`}
-        >
-          <Alert
-            variant={alert.variant}
-            title={alert.title}
-            description={alert.description}
-          />
-        </div>
-      )}
-      {/* end Alert */}
 
       {/* Judul, Judul Alternatif */}
       <div className="flex w-full flex-col gap-4 md:flex-row">
@@ -266,7 +257,7 @@ export default function SingleAddKomikForm({
           shape={"full"}
           size={"small"}
           className="mr-4 w-[100px]"
-          onClick={handleSubmit}
+          onClick={() => handleSubmit()}
         />
         <Button
           label="Batal"

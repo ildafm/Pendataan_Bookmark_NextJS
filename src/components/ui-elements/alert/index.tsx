@@ -8,7 +8,8 @@ const alertVariants = cva(
   {
     variants: {
       variant: {
-        success: "border-green bg-green-light-7 dark:bg-[#1B1B24]",
+        success:
+          "border-green bg-green-light-7 dark:bg-[#1B1B24] dark:text-white",
         warning: "border-[#FFB800] bg-[#FEF5DE] dark:bg-[#1B1B24]",
         error: "border-red-light bg-red-light-5 dark:bg-[#1B1B24]",
       },

@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     let query = adminDb
       .collection(collectionName)
       .where("email", "==", email)
-      .limit(5)
+      // .limit(5)
       .orderBy("updated_at", "desc"); // ✅ urutkan berdasarkan updated_at terbaru // membutuhkan index di firestore
 
     // (Opsional) batasi jumlah data

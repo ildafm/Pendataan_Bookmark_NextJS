@@ -70,7 +70,7 @@ export async function PUT(
       updated_at: new Date(),
     });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, id });
   } catch (error: any) {
     console.error("🔥 ERROR PUT:", error);
     return NextResponse.json(
@@ -82,20 +82,31 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } },
+  context: { params: Promise<{ id: string }> },
 ) {
+  const { id } = await context.params; // ✅ unwrap params (Next.js App Router)
+
   try {
+    // ✅ Verifikasi token & ambil email user
     const decoded = await verifyAuthToken(request);
-    const ref = adminDb.collection("komiks").doc(params.id);
+    const email = decoded.email;
+
+    // 🔍 Ambil dokumen dari Firestore
+    const ref = adminDb.collection("komiks").doc(id);
     const doc = await ref.get();
 
     if (!doc.exists) throw new Error("Dokumen tidak ditemukan");
-    if (doc.data()?.email !== decoded.email)
+
+    // 🛡️ Cegah delete jika bukan pemilik data
+    if (doc.data()?.email !== email)
       throw new Error("Tidak punya akses ke data ini");
 
+    // 🗑️ Hapus dokumen
     await ref.delete();
+
     return NextResponse.json({ success: true });
   } catch (error: any) {
+    console.error("🔥 ERROR DELETE:", error);
     return NextResponse.json(
       { success: false, message: error.message },
       { status: 401 },

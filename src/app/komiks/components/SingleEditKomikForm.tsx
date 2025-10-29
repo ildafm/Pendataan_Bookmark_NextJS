@@ -11,16 +11,15 @@ export default function SingleEditKomikForm({
   item,
   jenisKomikList,
   handleCloseEditForm,
+  setAlert,
+  setKomiks,
 }: {
   item: any;
   jenisKomikList: any[];
   handleCloseEditForm: any;
+  setAlert: any;
+  setKomiks: any;
 }) {
-  useEffect(() => {
-    console.log("Form ID:", form.id);
-    console.log("Fetch URL:", `/api/komik/${form.id}`);
-  }, [item]);
-
   const isMobile = useIsMobile();
 
   // Ubah data dari server menjadi format yang Select butuhkan
@@ -33,18 +32,20 @@ export default function SingleEditKomikForm({
     (j) => j.label.toLowerCase() === item.jenis_komik_ref?.toLowerCase(),
   );
 
+  // console.log(item);
+
   // State untuk form
   const [form, setForm] = useState({
     id: item.id,
-    judul: item.judul,
-    judul_alt: item.judul_alt,
-    link_bookmark: item.link_bookmark,
-    link_cover: item.link_cover,
-    chapter_terakhir: item.chapter_terakhir,
+    judul: item.judul || "",
+    judul_alt: item.judul_alt || "",
+    link_bookmark: item.link_bookmark || "",
+    link_cover: item.link_cover || "",
+    chapter_terakhir: item.chapter_terakhir || "",
     jenis_komik: matchedJenis?.value || jenisKomik[0]?.value,
-    status_komik: item.status_komik,
-    kualitas_komik: item.kualitas_komik,
-    deskripsi: item.deskripsi,
+    status_komik: item.status_komik || "BD",
+    kualitas_komik: item.kualitas_komik || "0",
+    deskripsi: item.deskripsi || "",
   });
   // Handle perubahan input
   const handleChange = (key: string, value: string) => {
@@ -106,6 +107,37 @@ export default function SingleEditKomikForm({
           title: "Berhasil!",
           description: "Data komik berhasil diperbarui di Database.",
         });
+
+        const selectedJenis = jenisKomikList.find(
+          (j) => j.id === form.jenis_komik,
+        );
+
+        const updatedKomik = {
+          id: result.id,
+          judul: form.judul,
+          judul_alt: form.judul_alt,
+          link_bookmark: form.link_bookmark,
+          link_cover: form.link_cover,
+          chapter_terakhir: form.chapter_terakhir,
+          status_komik: form.status_komik,
+          kualitas_komik: form.kualitas_komik,
+          deskripsi: form.deskripsi,
+          jenis_komik_ref: selectedJenis?.jenis || "", // ambil nama jenis, bukan ID
+          updated_at: Date.now(),
+        };
+
+        setKomiks((prev: any) => {
+          // 1. Ganti item lama dengan versi baru
+          const updatedList = prev.map((k: any) =>
+            k.id === updatedKomik.id ? updatedKomik : k,
+          );
+
+          // 2. Sort berdasarkan updated_at desc
+          updatedList.sort((a: any, b: any) => b.updated_at - a.updated_at);
+
+          return updatedList;
+        });
+
         handleCloseEditForm(); // Tutup form setelah sukses
       } else {
         setAlert({
@@ -116,6 +148,8 @@ export default function SingleEditKomikForm({
         });
       }
     } catch (err: any) {
+      console.error("Kesalahan Server: ", err);
+
       setAlert({
         variant: "error",
         title: "Kesalahan Server",
@@ -124,47 +158,9 @@ export default function SingleEditKomikForm({
     }
   };
 
-  // alert handle -----------------------------------------------------
-  const [alert, setAlert] = useState<{
-    variant: any;
-    title: string;
-    description: string;
-  } | null>(null);
-  const [visible, setVisible] = useState(false);
-
-  // hilangkan alert setelah beberapa detik
-  useEffect(() => {
-    if (alert) {
-      setVisible(true);
-      const timer = setTimeout(() => setVisible(false), 3500); // mulai fade-out
-      const removeTimer = setTimeout(() => setAlert(null), 4000); // hapus dari DOM
-      return () => {
-        clearTimeout(timer);
-        clearTimeout(removeTimer);
-      };
-    }
-  }, [alert]);
-  // end alert handle -----------------------------------------------------
-
   return (
     <ShowcaseSection title="Tambah data komik" className="space-y-5.5 !p-6.5">
       <h5 className="font-bold text-dark dark:text-white">* Wajib diisi</h5>
-
-      {/* Alert */}
-      {alert && (
-        <div
-          className={`fixed right-6 top-20 z-50 transition-all duration-500 ${
-            visible ? "-translate-x-0 opacity-100" : "translate-x-2 opacity-0"
-          }`}
-        >
-          <Alert
-            variant={alert.variant}
-            title={alert.title}
-            description={alert.description}
-          />
-        </div>
-      )}
-      {/* end Alert */}
 
       {/* Judul, Judul Alternatif */}
       <div className="flex w-full flex-col gap-4 md:flex-row">
