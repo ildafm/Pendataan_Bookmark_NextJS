@@ -8,6 +8,7 @@ import { Suspense } from "react";
 import { ChatsCard } from "./_components/chats-card";
 import { OverviewCardsGroup } from "./_components/overview-cards";
 import { RegionLabels } from "./_components/region-labels";
+import { OverviewCardsSkeleton } from "./_components/overview-cards/skeleton";
 
 type PropsType = {
   searchParams: Promise<{
@@ -21,9 +22,9 @@ export default async function Home({ searchParams }: PropsType) {
 
   return (
     <>
-      {/* <Suspense fallback={<OverviewCardsSkeleton />}> */}
+      <Suspense fallback={<OverviewCardsSkeleton />}>
         <OverviewCardsGroup />
-      {/* </Suspense> */}
+      </Suspense>
 
       <div className="mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-9 2xl:gap-7.5">
         <PaymentsOverview

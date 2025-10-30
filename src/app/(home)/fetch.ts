@@ -1,44 +1,30 @@
-import { auth } from '@/lib/firebase/firebaseConfig';
-import { getKomiks } from '@/lib/firebase/firebaseService'
-import { countByStatus, countByKualitas } from '@/utils/komikHandler'
-import { onAuthStateChanged } from 'firebase/auth';
+"server-only";
+
+import { countByStatus, countByKualitas } from "@/utils/komikHandler";
+import { fetchKomiks } from "../komiks/fetch";
 
 export async function getOverviewData() {
-  const komiks = await new Promise((resolve, reject) => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      unsubscribe(); // stop listening setelah sekali dipanggil
-      if (user) {
-        try {
-          const data = await getKomiks();
-          resolve(data);
-        } catch (err) {
-          reject(err);
-        }
-      } else {
-        resolve([]); // kalau belum login → kosong
-      }
-    });
-  });
+  const komikRes = await fetchKomiks();
 
   const data = {
-      total_komiks: {
-      value: komiks.length,
+    total_komiks: {
+      value: komikRes.length,
       growthRate: 0.43,
     },
     sedang_dibaca: {
-      value: countByStatus(komiks, "SD"), // filter semua komik sedang dibaca
+      value: countByStatus(komikRes, "SD"), // filter semua komik sedang dibaca
       growthRate: 4.35,
     },
     menunggu_update: {
-      value: countByStatus(komiks, "MU"), // filter semua komik menunggu update,
+      value: countByStatus(komikRes, "MU"), // filter semua komik menunggu update,
       growthRate: 2.59,
     },
     komik_bagus: {
-      value: countByKualitas(komiks, ["5", "4"]),
+      value: countByKualitas(komikRes, ["5", "4"]),
       growthRate: -0.95,
     },
-  }
-  
+  };
+
   return data;
 }
 

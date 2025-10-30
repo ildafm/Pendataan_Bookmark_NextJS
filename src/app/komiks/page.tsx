@@ -2,50 +2,23 @@
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 
 import { Metadata } from "next";
-import { cookies } from "next/headers";
 import KomikTableClient from "./components/KomikTableClient";
-import SingleAddKomikForm from "./components/SingleAddKomikForm";
+import { fetchKomiks } from "./fetch";
+import { fetchJenisKomik } from "../jenis_komiks/fetch";
 
 export const metadata: Metadata = {
   title: "Semua Komik",
 };
 
 const KomikPage = async () => {
-  const cookieStore = await cookies(); // RequestCookies
-  const token = cookieStore.get("token")?.value;
-
-  if (!token) return <div>Anda belum login.</div>;
-
   // Jalankan kedua fetch secara paralel agar lebih cepat (bukan sequential)
   const [komikRes, jenisKomikRes] = await Promise.all([
-    fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/komik`, {
-      headers: { Authorization: `Bearer ${token}` },
-      cache: "no-store",
-    }),
-    fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/jenis_komik`, {
-      headers: { Authorization: `Bearer ${token}` },
-      cache: "no-store",
-    }),
+    fetchKomiks(),
+    fetchJenisKomik(),
   ]);
 
-  // Validasi response
-  if (!komikRes.ok) {
-    console.error("❌ Gagal fetch komik:", await komikRes.text());
-    return <div>Gagal memuat data komik.</div>;
-  }
-  if (!jenisKomikRes.ok) {
-    console.error("❌ Gagal fetch jenis komik:", await jenisKomikRes.text());
-    return <div>Gagal memuat data jenis komik.</div>;
-  }
-
-  // Parse JSON
-  const [komikResult, jenisKomikResult] = await Promise.all([
-    komikRes.json(),
-    jenisKomikRes.json(),
-  ]);
-
-  const komikList = komikResult.data || [];
-  const jenisKomikList = jenisKomikResult.data || [];
+  const komikList = komikRes || [];
+  const jenisKomikList = jenisKomikRes || [];
 
   // Buat map untuk jenis komik agar lookup cepat
   const jenisMap = Object.fromEntries(

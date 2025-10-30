@@ -2,26 +2,37 @@ import { NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase/firebaseAdmin";
 import { verifyAuthToken } from "@/lib/verifyToken";
 
+const collectionName = "komiks";
+
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } },
+  context: { params: Promise<{ id: string }> },
 ) {
   try {
+    const { id } = await context.params; // ✅ unwrap promise dari params
+
     const decoded = await verifyAuthToken(request);
-    const doc = await adminDb.collection("komiks").doc(params.id).get();
+
+    const docRef = adminDb.collection("komiks").doc(id);
+    const doc = await docRef.get();
 
     if (!doc.exists) throw new Error("Dokumen tidak ditemukan");
-    if (doc.data()?.email !== decoded.email)
+
+    const data = doc.data();
+
+    if (data?.email !== decoded.email)
       throw new Error("Tidak punya akses ke data ini");
 
     return NextResponse.json({
       success: true,
-      data: { id: doc.id, ...doc.data() },
+      data: { id: doc.id, ...data },
     });
   } catch (error: any) {
+    console.error("🔥 ERROR DI /api/komik/[id]:", error);
+
     return NextResponse.json(
-      { success: false, message: error.message },
-      { status: 401 },
+      { success: false, message: error.message || "Internal Server Error" },
+      { status: 500 },
     );
   }
 }
@@ -47,7 +58,7 @@ export async function PUT(
       .doc(data.jenis_komik);
 
     // 🔍 Ambil dokumen komik berdasarkan ID
-    const ref = adminDb.collection("komiks").doc(id);
+    const ref = adminDb.collection(collectionName).doc(id);
     const doc = await ref.get();
 
     if (!doc.exists) throw new Error("Dokumen tidak ditemukan");
@@ -73,9 +84,17 @@ export async function PUT(
     return NextResponse.json({ success: true, id });
   } catch (error: any) {
     console.error("🔥 ERROR PUT:", error);
+    // return NextResponse.json(
+    //   { success: false, message: error.message },
+    //   { status: 400 },
+    // );
+
+    const isAuthError =
+      error.message?.includes("auth") || error.code === "auth";
+    const message = isAuthError ? "Unauthorized" : "Internal Server Error";
     return NextResponse.json(
-      { success: false, message: error.message },
-      { status: 400 },
+      { success: false, message },
+      { status: isAuthError ? 401 : 500 },
     );
   }
 }
@@ -92,7 +111,7 @@ export async function DELETE(
     const email = decoded.email;
 
     // 🔍 Ambil dokumen dari Firestore
-    const ref = adminDb.collection("komiks").doc(id);
+    const ref = adminDb.collection(collectionName).doc(id);
     const doc = await ref.get();
 
     if (!doc.exists) throw new Error("Dokumen tidak ditemukan");
@@ -106,10 +125,18 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error("🔥 ERROR DELETE:", error);
+    // console.error("🔥 ERROR DELETE:", error);
+    // return NextResponse.json(
+    //   { success: false, message: error.message },
+    //   { status: 401 },
+    // );
+
+    const isAuthError =
+      error.message?.includes("auth") || error.code === "auth";
+    const message = isAuthError ? "Unauthorized" : "Internal Server Error";
     return NextResponse.json(
-      { success: false, message: error.message },
-      { status: 401 },
+      { success: false, message },
+      { status: isAuthError ? 401 : 500 },
     );
   }
 }

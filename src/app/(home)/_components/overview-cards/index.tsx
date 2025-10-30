@@ -1,44 +1,19 @@
-"use client";
-
 import { compactFormat } from "@/lib/format-number";
 import { getOverviewData } from "../../fetch";
 import { OverviewCard } from "./card";
 import * as icons from "./icons";
-import { useEffect, useState } from "react";
 import { OverviewCardsSkeleton } from "./skeleton";
 
-export function OverviewCardsGroup() {
-  // const { total_komiks, sedang_dibaca, menunggu_update, komik_bagus } = await getOverviewData();
+export async function OverviewCardsGroup() {
+  const { total_komiks, sedang_dibaca, menunggu_update, komik_bagus } =
+    await getOverviewData();
 
-  const [data, setData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  // if (loading) return <OverviewCardsSkeleton />;
+  // // if (!data) return <p>Tidak ada data</p>;
 
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const res = await getOverviewData();
-        if (mounted) {
-          setData(res);
-        }
-      } catch (err) {
-        console.error("Gagal fetch data:", err);
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    })();
-    return () => {
-      mounted = false;
-    };
-  }, []);
+  // const {total_komiks, sedang_dibaca, menunggu_update, komik_bagus} = data
+  // // console.log(tot);
 
-  if (loading) return <OverviewCardsSkeleton />;
-  // if (!data) return <p>Tidak ada data</p>;
-
-  const {total_komiks, sedang_dibaca, menunggu_update, komik_bagus} = data
-  // console.log(tot);
-  
-  
   return (
     <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 xl:grid-cols-4 2xl:gap-7.5">
       <OverviewCard

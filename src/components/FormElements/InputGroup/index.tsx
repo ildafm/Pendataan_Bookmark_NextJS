@@ -72,7 +72,7 @@ const InputGroup: React.FC<InputGroupProps> = ({
           required={required}
           disabled={disabled}
           data-active={active}
-          maxLength={type === "text" ? maxChar : NaN}
+          {...(type === "text" ? { maxLength: maxChar } : {})}
         />
 
         {icon}

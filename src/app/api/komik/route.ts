@@ -12,7 +12,6 @@ export async function GET(request: Request) {
     let query = adminDb
       .collection(collectionName)
       .where("email", "==", email)
-      // .limit(5)
       .orderBy("updated_at", "desc"); // ✅ urutkan berdasarkan updated_at terbaru // membutuhkan index di firestore
 
     // (Opsional) batasi jumlah data
@@ -57,9 +56,12 @@ export async function GET(request: Request) {
       );
     }
 
+    const isAuthError =
+      error.message?.includes("auth") || error.code === "auth";
+    const message = isAuthError ? "Unauthorized" : "Internal Server Error";
     return NextResponse.json(
-      { success: false, message: error.message },
-      { status: 401 },
+      { success: false, message },
+      { status: isAuthError ? 401 : 500 },
     );
   }
 }
@@ -96,10 +98,12 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, id: docRef.id });
   } catch (error: any) {
-    console.error("POST /api/komik error:", error);
+    const isAuthError =
+      error.message?.includes("auth") || error.code === "auth";
+    const message = isAuthError ? "Unauthorized" : "Internal Server Error";
     return NextResponse.json(
-      { success: false, message: error.message },
-      { status: error.code === "auth/argument-error" ? 401 : 500 },
+      { success: false, message },
+      { status: isAuthError ? 401 : 500 },
     );
   }
 }

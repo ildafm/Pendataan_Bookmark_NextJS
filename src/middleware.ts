@@ -6,11 +6,14 @@ const FIREBASE_PROJECT_ID = process.env.FIREBASE_PROJECT_ID!;
 const ISSUER = `https://securetoken.google.com/${FIREBASE_PROJECT_ID}`;
 
 async function refreshFirebaseToken(refreshToken: string) {
-  const response = await fetch(`https://securetoken.googleapis.com/v1/token?key=${process.env.FIREBASE_API_KEY}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `grant_type=refresh_token&refresh_token=${refreshToken}`,
-  });
+  const response = await fetch(
+    `https://securetoken.googleapis.com/v1/token?key=${process.env.FIREBASE_API_KEY}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `grant_type=refresh_token&refresh_token=${refreshToken}`,
+    },
+  );
   const data = await response.json();
 
   if (!response.ok) throw new Error("Failed to refresh token");
@@ -53,7 +56,6 @@ export async function middleware(req: NextRequest) {
   }
 }
 
-
 async function verifyFirebaseToken(token: string) {
   const JWKS_URL = `https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com`;
 
@@ -78,5 +80,9 @@ async function verifyFirebaseToken(token: string) {
 }
 
 export const config = {
-  matcher: ["/komik/:path*", "/komiks/:path*"],
+  matcher: [
+    // Jalankan middleware di semua halaman,
+    // kecuali halaman login, file statis, favicon, dan API routes
+    "/((?!_next/static|_next/image|favicon.ico|auth/sign-in|api).*)",
+  ],
 };

@@ -28,6 +28,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import SingleAddKomikForm from "./SingleAddKomikForm";
 import SingleEditKomikForm from "./SingleEditKomikForm";
 import { Alert } from "@/components/ui-elements/alert";
+import Link from "next/link";
 
 export default function KomikTableClient({
   data,
@@ -84,6 +85,7 @@ export default function KomikTableClient({
     const combined = `
     ${item.judul}
     ${item.jenis_komik_ref}
+    ${item.chapter_terakhir}
     ${getStatusKomik(item.status_komik)}
     ${getKualitasKomik(item.kualitas_komik)}
   `.toLowerCase();
@@ -277,6 +279,7 @@ export default function KomikTableClient({
                 <TableHead>Judul</TableHead>
                 <TableHead>Jenis</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Chapter</TableHead>
                 <TableHead>Terakhir Dibaca</TableHead>
               </TableRow>
             </TableHeader>
@@ -287,9 +290,14 @@ export default function KomikTableClient({
                   <TableCell>{startIndex + index + 1}</TableCell>
                   <TableCell>
                     <div className="flex flex-col items-center gap-x-3.5 gap-y-3.5 md:flex-row">
-                      <button className="hover:text-primary">
+                      {/* show detail button */}
+                      <Link
+                        href={`/komiks/${item.id}`}
+                        className="hover:text-primary"
+                      >
                         <PreviewIcon />
-                      </button>
+                      </Link>
+                      {/* end show detail button */}
 
                       {/* Edit Button */}
                       <button
@@ -329,6 +337,8 @@ export default function KomikTableClient({
                       {getKualitasKomik(item.kualitas_komik)}
                     </p>
                   </TableCell>
+
+                  {/* status */}
                   <TableCell>
                     <div
                       className={cn(
@@ -357,6 +367,17 @@ export default function KomikTableClient({
                       {getStatusKomik(item.status_komik)}
                     </div>
                   </TableCell>
+                  {/* end status */}
+
+                  {/* chapter */}
+                  <TableCell>
+                    <h5 className="text-dark dark:text-white">
+                      {item.chapter_terakhir}
+                    </h5>
+                  </TableCell>
+                  {/* end chapter */}
+
+                  {/* Terakhir dibaca */}
                   <TableCell>
                     <h5 className="text-dark dark:text-white">
                       {formatMillisToDate(item.updated_at)}
@@ -365,6 +386,7 @@ export default function KomikTableClient({
                       {formatMillisToDaysAgo(item.updated_at, isMobile)}
                     </p>
                   </TableCell>
+                  {/* end Terakhir dibaca */}
                 </TableRow>
               ))}
             </TableBody>
