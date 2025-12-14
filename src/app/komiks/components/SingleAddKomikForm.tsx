@@ -64,26 +64,26 @@ export default function SingleAddKomikForm({
     }
 
     try {
-      const token = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("token="))
-        ?.split("=")[1];
+      // const token = document.cookie
+      //   .split("; ")
+      //   .find((row) => row.startsWith("token="))
+      //   ?.split("=")[1];
 
-      if (!token) {
-        setAlert({
-          variant: "warning",
-          title: "Token Tidak Ditemukan",
-          description:
-            "Token login tidak ditemukan. Silakan login ulang untuk melanjutkan.",
-        });
-        return;
-      }
+      // if (!token) {
+      //   setAlert({
+      //     variant: "warning",
+      //     title: "Token Tidak Ditemukan",
+      //     description:
+      //       "Token login tidak ditemukan. Silakan login ulang untuk melanjutkan.",
+      //   });
+      //   return;
+      // }
 
       const res = await fetch("/api/komik", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          // Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(form),
       });
@@ -141,7 +141,19 @@ export default function SingleAddKomikForm({
 
   return (
     <ShowcaseSection title="Tambah data komik" className="space-y-5.5 !p-6.5">
-      <h5 className="font-bold text-dark dark:text-white">* Wajib diisi</h5>
+      <div className="flex items-center justify-between">
+        <h5 className="font-bold text-dark dark:text-white">* Wajib diisi</h5>
+
+        <Button
+          label="X"
+          variant={"outlineDark"}
+          title="Batal"
+          shape={"full"}
+          size={"small"}
+          className="mb-2 text-sm sm:mb-0"
+          onClick={() => setIsOpenAddKomikForm(false)}
+        />
+      </div>
 
       {/* Judul, Judul Alternatif */}
       <div className="flex w-full flex-col gap-4 md:flex-row">
@@ -254,6 +266,7 @@ export default function SingleAddKomikForm({
         <Button
           label="Simpan"
           variant={"primary"}
+          title={"Simpan Data"}
           shape={"full"}
           size={"small"}
           className="mr-4 w-[100px]"
@@ -262,6 +275,7 @@ export default function SingleAddKomikForm({
         <Button
           label="Batal"
           variant={"dark"}
+          title={"Batal"}
           shape={"full"}
           size={"small"}
           className="w-[100px]"

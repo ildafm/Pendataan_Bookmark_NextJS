@@ -3,7 +3,7 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 
 import { Metadata } from "next";
 import KomikTableClient from "./components/KomikTableClient";
-import { fetchKomiks } from "./fetch";
+import { fetchKomiks } from "./handler";
 import { fetchJenisKomik } from "../jenis_komiks/fetch";
 
 export const metadata: Metadata = {

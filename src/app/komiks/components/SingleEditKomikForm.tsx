@@ -74,27 +74,27 @@ export default function SingleEditKomikForm({
 
     try {
       // 🔐 Ambil token dari cookie (sama seperti add form)
-      const token = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("token="))
-        ?.split("=")[1];
+      // const token = document.cookie
+      //   .split("; ")
+      //   .find((row) => row.startsWith("token="))
+      //   ?.split("=")[1];
 
-      if (!token) {
-        setAlert({
-          variant: "warning",
-          title: "Token Tidak Ditemukan",
-          description:
-            "Token login tidak ditemukan. Silakan login ulang untuk melanjutkan.",
-        });
-        return;
-      }
+      // if (!token) {
+      //   setAlert({
+      //     variant: "warning",
+      //     title: "Token Tidak Ditemukan",
+      //     description:
+      //       "Token login tidak ditemukan. Silakan login ulang untuk melanjutkan.",
+      //   });
+      //   return;
+      // }
 
       // 🛠️ Kirim request ke API edit/update
       const res = await fetch(`/api/komik/${form.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          // Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(form),
       });

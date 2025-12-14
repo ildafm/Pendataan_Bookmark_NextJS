@@ -1,7 +1,7 @@
 "server-only";
 
 import { countByStatus, countByKualitas } from "@/utils/komikHandler";
-import { fetchKomiks } from "../komiks/fetch";
+import { fetchKomiks } from "../komiks/handler";
 
 export async function getOverviewData() {
   const komikRes = await fetchKomiks();

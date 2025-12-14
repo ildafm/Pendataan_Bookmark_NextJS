@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { fetchKomikById } from "../fetch";
+import { fetchKomikById } from "../handler";
 
 export const metadata: Metadata = {
   title: "Detail Komik",

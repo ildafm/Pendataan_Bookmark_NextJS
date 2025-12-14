@@ -92,7 +92,7 @@ export async function POST(request: Request) {
       status_komik: data.status_komik,
       kualitas_komik: data.kualitas_komik,
       deskripsi: data.deskripsi,
-      jenis_komik_ref: jenisKomikRef, // ✅ reference, bukan string
+      jenis_komik_ref: jenisKomikRef,
       email,
       created_at: new Date(),
       updated_at: new Date(),
